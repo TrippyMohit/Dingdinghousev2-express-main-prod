@@ -2,11 +2,11 @@
   "name": "dingding-house",
   "version": "1.0.0",
   "description": "A Node.js server project using TypeScript",
-  "main": "server.ts",
+  "main": "app.ts",
   "scripts": {
-    "start": "node dist/server.js",
+    "start": "node dist/app.js",
     "build": "tsc",
-    "dev": "tsc-watch --onSuccess \"nodemon dist/server.js\""
+    "dev": "tsc-watch --onSuccess \"nodemon dist/app.js\""
   },
   "dependencies": {
     "@socket.io/redis-adapter": "^8.3.0",

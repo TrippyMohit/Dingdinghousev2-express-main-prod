@@ -41,7 +41,7 @@ jobs:
           name: artifact
           path: ./dist/**/*.js
 
-      - name: Copy Src and server.js in root
+      - name: Copy Src and app.js in root
         run: |
           git config --global user.email "mohitnegi.trippybug@gmail.com"
           git config --global user.name "TrippyMohit"
@@ -50,16 +50,17 @@ jobs:
           
           # Copy built files
           cp -r ./dist/src .
-          cp -r ./dist/server.js .
+          cp -r ./dist/app.js .
 
           # Clean up
           rm -rf ./dist
           rm -rf ./node_modules
-          rm -rf ./server.ts
+          rm -rf ./app.ts
+          rm -rf ./server.js
 
           # Delete all .ts files just in case
           find ./src -name "*.ts" -type f -delete
 
-          git add -f ./server.js ./src
+          git add -f ./app.js ./src
           git commit -m "add new build" || echo "No changes to commit"
           git push origin dev-build --force
