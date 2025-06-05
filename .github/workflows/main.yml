@@ -50,15 +50,15 @@ jobs:
           
           # Copy built files
           cp -r ./dist/src .
-          cp -r ./dist/app.js .
+          cp ./dist/app.js .
 
           # Clean up
           rm -rf ./dist
           rm -rf ./node_modules
-          rm -rf ./app.ts
-          rm -rf ./server.js
 
-          # Delete all .ts files just in case
+          # Ensure unwanted files are removed
+          rm -f ./app.ts
+          rm -f ./server.js
           find ./src -name "*.ts" -type f -delete
 
           git add -f ./app.js ./src
