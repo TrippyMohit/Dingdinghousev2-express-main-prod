@@ -1,0 +1,20 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const transactions_controller_1 = __importDefault(require("./transactions.controller"));
+const transactions_service_1 = __importDefault(require("./transactions.service"));
+const auth_middleware_1 = require("../../middleware/auth.middleware");
+const permission_middleware_1 = require("../../middleware/permission.middleware");
+const resources_1 = require("../../../common/lib/resources");
+const transactionRoutes = (0, express_1.Router)();
+const transactionService = new transactions_service_1.default();
+const transactionController = new transactions_controller_1.default(transactionService);
+const resource = resources_1.Resource.TRANSACTIONS;
+transactionRoutes.get('/', auth_middleware_1.authHandler, (0, permission_middleware_1.checkPermission)(resource, 'r'), transactionController.getAllTransactions);
+transactionRoutes.get("/:transactionId", auth_middleware_1.authHandler, (0, permission_middleware_1.checkPermission)(resource, 'r'), transactionController.getTransactionById);
+transactionRoutes.get("/user/:userId", auth_middleware_1.authHandler, (0, permission_middleware_1.checkPermission)(resource, 'r'), transactionController.getTransactionsByUser);
+transactionRoutes.get('/user/:userId/descendants', auth_middleware_1.authHandler, (0, permission_middleware_1.checkPermission)(resource, 'r'), transactionController.getTransactionsByUserAndDescendants);
+exports.default = transactionRoutes;

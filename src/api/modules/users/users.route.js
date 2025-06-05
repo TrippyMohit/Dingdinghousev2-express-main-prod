@@ -1,0 +1,28 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const users_service_1 = __importDefault(require("./users.service"));
+const users_controller_1 = __importDefault(require("./users.controller"));
+const auth_middleware_1 = require("../../middleware/auth.middleware");
+const permission_middleware_1 = require("../../middleware/permission.middleware");
+const resources_1 = require("../../../common/lib/resources");
+const userRoutes = (0, express_1.Router)();
+const userService = new users_service_1.default();
+const userController = new users_controller_1.default(userService);
+const resource = resources_1.Resource.USERS;
+userRoutes.get('/me', auth_middleware_1.authHandler, userController.getCurrentUser);
+userRoutes.get('/me/descendants', auth_middleware_1.authHandler, (0, permission_middleware_1.checkPermission)(resource, 'r'), userController.getDescendants);
+userRoutes.get("/me/report", auth_middleware_1.authHandler, (0, permission_middleware_1.checkPermission)(resource, 'r'), userController.getDescendantsReport);
+userRoutes.get('/:userId', auth_middleware_1.authHandler, (0, permission_middleware_1.checkPermission)(resource, 'r'), userController.getUserById);
+userRoutes.put('/:userId', auth_middleware_1.authHandler, (0, permission_middleware_1.checkPermission)(resource, 'w'), userController.updateUser);
+userRoutes.delete('/:userId', auth_middleware_1.authHandler, (0, permission_middleware_1.checkPermission)(resource, 'x'), userController.deleteUser);
+userRoutes.get('/:userId/favourite-games', auth_middleware_1.authHandler, (0, permission_middleware_1.checkPermission)(resource, 'r'), userController.getUserFavouriteGames);
+userRoutes.patch('/:userId/favourite-games', auth_middleware_1.authHandler, (0, permission_middleware_1.checkPermission)(resource, 'w'), userController.updateFavouriteGames);
+userRoutes.get('/:userId/descendants', auth_middleware_1.authHandler, (0, permission_middleware_1.checkPermission)(resource, 'r'), userController.getDescendantsOfUser);
+userRoutes.get('/:userId/permissions', auth_middleware_1.authHandler, (0, permission_middleware_1.checkPermission)(resource, 'r'), userController.getUserPermissions);
+userRoutes.patch('/:userId/permissions', auth_middleware_1.authHandler, (0, permission_middleware_1.checkPermission)(resource, 'w'), userController.updateUserPermissions);
+userRoutes.get('/:userId/report', auth_middleware_1.authHandler, (0, permission_middleware_1.checkPermission)(resource, 'r'), userController.getUserReport);
+exports.default = userRoutes;
