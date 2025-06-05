@@ -22,44 +22,40 @@ jobs:
         with:
           node-version: "20"
 
-      - name: Push updated package.json to dev-build branch
-        env:
-          GITHUB_TOKEN: ${{ secrets.G_TOKEN }}
-        run: |
-          git checkout dev
-          git checkout -b dev-build
-         
       - name: Install Dependencies
         run: npm install
 
       - name: Build
         run: npm run build
 
-      - name: Upload Build Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: artifact
-          path: ./dist/**/*.js
-
-      - name: Copy Src and server.js in root
+      - name: Create and Push dev-build Branch
+        env:
+          GITHUB_TOKEN: ${{ secrets.G_TOKEN }}
         run: |
+          git checkout dev
+          git checkout -b dev-build
+
+          # Configure Git user
           git config --global user.email "mohitnegi.trippybug@gmail.com"
           git config --global user.name "TrippyMohit"
+
+          # Stash untracked changes
           git stash -u
-          git checkout dev-build
-          
+
           # Copy built files
-          cp -r ./dist/src .
-          cp -r ./dist/server.js .
+          mkdir -p ./build-artifacts/src
+          cp -r ./dist/src/* ./build-artifacts/src/
+          cp ./dist/server.js ./build-artifacts/
 
-          # Clean up
-          rm -rf ./dist
-          rm -rf ./node_modules
-          rm -rf ./server.ts
+          # Remove unnecessary files
+          rm -rf ./dist ./node_modules ./server.ts
 
-          # Delete all .ts files just in case
-          find ./src -name "*.ts" -type f -delete
+          # Delete all .ts files from src
+          find ./build-artifacts/src -name "*.ts" -type f -delete
 
-          git add -f ./server.js ./src
-          git commit -m "add new build" || echo "No changes to commit"
+          # Stage and commit changes
+          git add -f ./build-artifacts
+          git commit -m "Add new build artifacts" || echo "No changes to commit"
+
+          # Push to dev-build branch
           git push origin dev-build --force
