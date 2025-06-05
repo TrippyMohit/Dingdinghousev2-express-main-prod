@@ -1,33 +1,65 @@
-name: Deploy Server
+name: Build and Deploy
 
 on:
   push:
     branches:
-      - dev  # Trigger on push to the dev branch
+      - "dev"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
 
 jobs:
-  deploy:
-    name: Deploy to EC2
-    runs-on: self-hosted
+  build:
+    runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      - name: Deploy to EC2
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Push updated package.json to dev-build branch
+        env:
+          GITHUB_TOKEN: ${{ secrets.G_TOKEN }}
         run: |
+          git checkout dev
+          git checkout -b dev-build
+         
+      - name: Install Dependencies
+        run: npm install
 
-          pwd
+      - name: Build
+        run: npm run build
 
-          # Create the .env file
-          echo "${{ secrets.ENV_CONTENT }}" > .env
-          [ -f .env ] && echo ".env file created successfully" || { echo "Failed to create .env file"; exit 1; }
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: artifact
+          path: ./dist/**/*.js
 
-          # Install dependencies and build the frontend
-          npm install || { echo "npm install failed"; exit 1; }
-          npm run build || { echo "npm run build failed"; exit 1; }
+      - name: Copy Src and app.js in root
+        run: |
+          git config --global user.email "mohitnegi.trippybug@gmail.com"
+          git config --global user.name "TrippyMohit"
+          git stash -u
+          git checkout dev-build
+          
+          # Copy built files
+          cp -r ./dist/src .
+          cp -r ./dist/app.js .
 
-          # Restart or start the frontend application with PM2
-          pm2 restart backend || pm2 start dist/app.js --name backend || { echo "PM2 command failed"; exit 1; }
+          # Clean up
+          rm -rf ./dist
+          rm -rf ./node_modules
+          rm -rf ./app.ts
 
-          echo "Backend deployment completed."
+          # Delete all .ts files just in case
+          find ./src -name "*.ts" -type f -delete
+
+          git add -f ./app.js ./src
+          git commit -m "add new build" || echo "No changes to commit"
+          git push origin dev-build --force
