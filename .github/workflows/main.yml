@@ -50,7 +50,7 @@ jobs:
           
           # Copy built files
           cp -r ./dist/src .
-          cp -r ./dist/app.js .
+          cp -r ./dist/server.js .
 
           # Clean up
           rm -rf ./dist
