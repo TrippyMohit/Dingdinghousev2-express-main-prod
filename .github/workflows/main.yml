@@ -41,7 +41,7 @@ jobs:
           name: artifact
           path: ./dist/**/*.js
 
-      - name: Copy Src and app.js in root
+      - name: Copy Src and server.js in root
         run: |
           git config --global user.email "mohitnegi.trippybug@gmail.com"
           git config --global user.name "TrippyMohit"
@@ -55,7 +55,7 @@ jobs:
           # Clean up
           rm -rf ./dist
           rm -rf ./node_modules
-          rm -rf ./app.ts
+          rm -rf ./server.ts
 
           # Delete all .ts files just in case
           find ./src -name "*.ts" -type f -delete
