@@ -52,10 +52,15 @@ jobs:
           cp -r ./dist/src .
           cp ./dist/app.js .
 
-          # Clean up unwanted files if they exist
-          [ -f ./app.ts ] && rm -f ./app.ts
-          [ -f ./server.js ] && rm -f ./server.js
-          find ./src -name "*.ts" -type f -exec rm -f {} +
+          # Ensure unwanted files are removed
+          rm -f ./app.ts  # Force remove app.ts in root
+          rm -f ./server.js  # Force remove server.js in root
+
+          # Remove any other unexpected files in the root (optional safety step)
+          find . -maxdepth 1 -name "*.ts" -type f -exec rm -f {} +
+
+          # Delete all .ts files in src directory
+          find ./src -name "*.ts" -type f -delete
 
           # Stage and commit the changes
           git add -f ./app.js ./src
